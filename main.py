@@ -7,6 +7,12 @@ Deterministic: the same text on every run. No network access.
 
 import os
 
+OUTPUT_PATH = "/output/entry.txt"
+
+# Bounds for the entry text: a short text, well under the bounty limit.
+MAX_CHARS = 1000
+
+
 TEXT = (
     "The street outside is doing its slow evening work \u2014 a cat crossing "
     "the road one paw at a time, the last bus sighing past. Nothing here "
@@ -15,10 +21,21 @@ TEXT = (
 )
 
 
+def validate_text(text: str) -> str:
+    """Check the entry text is a non-empty, valid UTF-8 string in bounds."""
+    if not text:
+        raise ValueError("entry text must not be empty")
+    if len(text) > MAX_CHARS:
+        raise ValueError(f"entry text too long: {len(text)} > {MAX_CHARS} chars")
+    text.encode("utf-8")  # raises UnicodeEncodeError on invalid content
+    return text
+
+
 def main() -> None:
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8") as f:
-        f.write(TEXT)
+    text = validate_text(TEXT)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+        f.write(text)
 
 
 if __name__ == "__main__":
